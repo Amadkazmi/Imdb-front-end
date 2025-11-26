@@ -200,7 +200,7 @@ const Browse = () => {
                           alert(`Added ${movie.id} to watchlist!`)
                         }
                       >
-                        ➕ Watchlist
+                        ➕ Bookmark
                       </Button>
 
                       <Button
