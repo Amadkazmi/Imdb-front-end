@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Login from './components/Login';
 import Browse from './components/Browse';
+import MovieDetails from './components/MovieDetails'; // Add this import
 import { createBrowserRouter } from 'react-router-dom';
 
 function App() {
@@ -20,15 +21,15 @@ function App() {
 
 export default App;
 
-
 export const appRouter = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <Browse /> }, // default route for "/"
+      { index: true, element: <Browse /> },
       { path: 'login', element: <Login /> },
-      { path: 'browse', element: <Browse /> } // optional, can access /browse explicitly
+      { path: 'browse', element: <Browse /> },
+      { path: 'movie/:tconst', element: <MovieDetails /> } // Add this line
     ]
   }
 ]);
