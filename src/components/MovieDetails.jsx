@@ -48,8 +48,8 @@ const MovieDetails = () => {
         releaseDate: response.startYear || "Unknown",
         rating: response.averageRating ?? "N/A",
         votes: response.numVotes ?? "N/A",
-        imageUrl: response.poster && response.poster.trim() !== "" 
-          ? response.poster 
+        imageUrl: response.poster && response.poster.trim() !== ""
+          ? response.poster
           : "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg",
         type: response.titleType || "Unknown",
         isAdult: response.isAdult || false,
@@ -65,9 +65,16 @@ const MovieDetails = () => {
     }
   };
 
-  const handleBookmark = () => {
-    if (movie) {
-      alert(`Added "${movie.title}" to watchlist!`);
+  const handleBookmark = async (tconst) => {
+    try {
+      await apiService.authenticatedFetch("https://localhost:7123/api/Bookmarks", {
+        method: "POST",
+        body: JSON.stringify({ tconst }),
+      });
+      alert("Added to watchlist!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to watchlist.");
     }
   };
 
@@ -153,8 +160,8 @@ const MovieDetails = () => {
                 alt={movie.title}
                 style={{ height: "500px", objectFit: "cover" }}
                 onError={(e) =>
-                  (e.currentTarget.src =
-                    "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
+                (e.currentTarget.src =
+                  "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
                 }
               />
             </Card>
@@ -164,7 +171,7 @@ const MovieDetails = () => {
           <Col lg={8} md={7}>
             <div className="ps-md-4">
               <h1 className="text-warning mb-2">{movie.title}</h1>
-              
+
               {movie.originalTitle && movie.originalTitle !== movie.title && (
                 <h5 className="text-muted mb-4">
                   <strong>Original Title:</strong> {movie.originalTitle}
@@ -230,7 +237,7 @@ const MovieDetails = () => {
                   variant="warning"
                   size="lg"
                   className="me-md-2 mb-2 fw-bold"
-                  onClick={handleBookmark}
+                  onClick={() => handleBookmark(movie.id)}
                 >
                   ➕ Add to Watchlist
                 </Button>
