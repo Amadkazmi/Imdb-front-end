@@ -11,7 +11,7 @@ import {
   Badge,
   ListGroup,
 } from "react-bootstrap";
-import { apiService } from "../utils/auth";
+import { apiService } from "../../data_access_layer/auth";
 
 const MovieDetails = () => {
   const { tconst } = useParams();

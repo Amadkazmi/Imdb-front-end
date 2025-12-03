@@ -1,12 +1,12 @@
-import MovieNavbar from './components/MovieNavbar';
+import MovieNavbar from './presentation_layer/components/MovieNavbar';
 import { Outlet } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import Login from './components/Login';
-import Browse from './components/Browse';
-import MovieDetails from './components/MovieDetails'; // Add this import
+import Login from './presentation_layer/components/Login';
+import Browse from './presentation_layer/components/Browse';
+import MovieDetails from './presentation_layer/components/MovieDetails'; // Add this import
 import { createBrowserRouter } from 'react-router-dom';
-import MovieFooter from './components/MovieFooter';
+import MovieFooter from './presentation_layer/components/MovieFooter';
 
 function App() {
   return (

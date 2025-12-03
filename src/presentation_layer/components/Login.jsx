@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { addUser } from '../utils/userSlice';
-import { apiService } from '../utils/auth';
+import { addUser } from '../../business_logic_layer/userSlice';
+import { apiService } from '../../data_access_layer/auth';
 
 const Login = () => {
     const username = useRef();

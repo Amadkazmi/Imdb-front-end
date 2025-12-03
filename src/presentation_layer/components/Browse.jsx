@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ExpandableText from "./ExpandableText.jsx";
 import {
   Container,
   Row,
@@ -10,7 +11,7 @@ import {
   Alert,
   Nav,
 } from "react-bootstrap";
-import { apiService } from "../utils/auth";
+import { apiService } from "../../data_access_layer/auth";
 
 const Browse = () => {
   const [movies, setMovies] = useState([]);
@@ -189,9 +190,9 @@ const Browse = () => {
                   <Card.Body className="d-flex flex-column">
                     <Card.Title>{movie.title}</Card.Title>
 
-                    <Card.Text className="flex-grow-1">
-                      {movie.description}
-                    </Card.Text>
+                        <Card.Text className="flex-grow-1">
+                          <ExpandableText text={movie.description} />
+                        </Card.Text>
 
                     <div className="mb-2">
                       {movie.genres.map((g) => (
