@@ -22,7 +22,7 @@ const Browse = () => {
   const [sortBy, setSortBy] = useState("latest");
 
   // Placeholder genres; update based on backend MovieDto.Genres
-  const genres = ["all", "Action", "Comedy", "Drama", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller","Documentary"];
+  const genres = ["all", "Action", "Comedy", "Drama", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "Documentary"];
 
   useEffect(() => {
     fetchMovies();
@@ -88,6 +88,19 @@ const Browse = () => {
     }
 
     setFilteredMovies(filtered);
+  };
+
+  const handleBookmark = async (tconst) => {
+    try {
+      await apiService.authenticatedFetch("https://localhost:7123/api/Bookmarks", {
+        method: "POST",
+        body: JSON.stringify({ tconst }),
+      });
+      alert("Added to watchlist!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to watchlist.");
+    }
   };
 
   if (loading) {
@@ -168,8 +181,8 @@ const Browse = () => {
                     src={movie.imageUrl}
                     style={{ height: "350px", objectFit: "cover" }}
                     onError={(e) =>
-                      (e.currentTarget.src =
-                        "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
+                    (e.currentTarget.src =
+                      "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
                     }
                   />
 
@@ -196,9 +209,7 @@ const Browse = () => {
                       <Button
                         variant="warning"
                         size="sm"
-                        onClick={() =>
-                          alert(`Added ${movie.id} to watchlist!`)
-                        }
+                        onClick={() => handleBookmark(movie.id)}
                       >
                         ➕ Bookmark
                       </Button>
@@ -224,7 +235,7 @@ const Browse = () => {
           )}
         </Row>
       </Container>
-    </div>
+    </div >
   );
 };
 
