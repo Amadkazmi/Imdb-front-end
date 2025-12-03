@@ -6,15 +6,17 @@ import Login from './components/Login';
 import Browse from './components/Browse';
 import MovieDetails from './components/MovieDetails'; // Add this import
 import { createBrowserRouter } from 'react-router-dom';
+import MovieFooter from './components/MovieFooter';
 
 function App() {
   return (
     <div className="bg-dark text-white min-vh-100">
       <MovieNavbar />
-
+     
       <div className="container-fluid mt-4">
         <Outlet />
       </div>
+      <MovieFooter />
     </div>
   );
 }

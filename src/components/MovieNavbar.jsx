@@ -32,9 +32,18 @@ const MovieNavbar = () => {
       <Navbar bg="dark" variant="dark" className="border-bottom border-secondary py-2" fixed="top">
         <Container fluid>
           <div className="d-flex justify-content-between align-items-center w-100">
+
             {/* Logo */}
-            <Navbar.Brand href="#" className="fw-bold text-warning fs-4">
-              MDB
+            <Navbar.Brand
+              role="button"
+              onClick={() => navigate('/')}
+              className="d-flex align-items-center bg-warning text-dark fw-bold px-5 py-2 rounded"
+              style={{ cursor: 'pointer', fontSize: '1.3rem', letterSpacing: '1px' }}
+              tabIndex={0}
+              aria-label="Go to homepage"
+              onKeyDown={(e) => e.key === 'Enter' && navigate('/')}
+            >
+              IMDb
             </Navbar.Brand>
 
             {/* Auth Buttons */}

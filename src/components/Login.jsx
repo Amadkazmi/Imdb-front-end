@@ -109,51 +109,62 @@ const Login = () => {
     };
 
     return (
-        <div className="min-vh-100 bg-dark text-white">
-            <Container className="min-vh-100 d-flex align-items-center justify-content-center">
-                <Row className="w-100 justify-content-center">
-                    <Col xs={12} sm={8} md={6} lg={4}>
-                        <Card className="bg-dark border-secondary shadow-lg">
-                            <Card.Body className="p-4">
-                                <div className="text-center mb-4">
-                                    <h2 className="text-warning fw-bold">🎬 MOVIEDB</h2>
-                                    <h4>{isSignup ? 'Create Account' : 'Sign In'}</h4>
-                                </div>
+       <div className="min-vh-100 bg-dark d-flex align-items-center justify-content-center">
+  <Container>
+    <Row className="justify-content-center">
+      <Col xs={12} sm={8} md={6} lg={4}>
+        <Card className="bg-dark border-secondary shadow-lg rounded-3">
+          <Card.Body className="p-4">
 
-                                {error && <Alert variant="danger">⚠️ {error}</Alert>}
+            {/* Header */}
+            <div className="text-center mb-4">
+              <h2 className="text-warning fw-bold mb-1">🎬 MOVIEDB</h2>
+              <h5 className="text-white fw-normal">{isSignup ? 'Create Your Account' : 'Sign In'}</h5>
+            </div>
 
-                                <Form onSubmit={handleSubmit}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="text-white">Username</Form.Label>
-                                        <Form.Control
-                                            ref={username}
-                                            type="text"
-                                            placeholder="Enter username"
-                                            className="bg-secondary text-white"
-                                        />
-                                    </Form.Group>
+            {/* Error Alert */}
+            {error && <Alert variant="danger" className="py-2 text-center">⚠️ {error}</Alert>}
 
-                                    {isSignup && (
-                                        <Form.Group className="mb-3">
-                                            <Form.Label className="text-white">Email</Form.Label>
-                                            <Form.Control
-                                                ref={email}
-                                                type="email"
-                                                placeholder="Enter email"
-                                                className="bg-secondary text-white"
-                                            />
-                                        </Form.Group>
-                                    )}
+            {/* Form */}
+            <Form onSubmit={handleSubmit}>
 
-                                    <Form.Group className="mb-4">
-                                        <Form.Label className="text-white">Password</Form.Label>
-                                        <Form.Control
-                                            ref={password}
-                                            type="password"
-                                            placeholder="Enter password"
-                                            className="bg-secondary text-white"
-                                        />
-                                    </Form.Group>
+              {/* Username */}
+              <Form.Group className="mb-3">
+                <Form.Label className="text-white fw-semibold">Username</Form.Label>
+                <Form.Control
+                  ref={username}
+                  type="text"
+                  placeholder="Enter username"
+                  className="bg-secondary text-white border-0 rounded-2"
+                  required
+                />
+              </Form.Group>
+
+              {/* Email (Signup only) */}
+              {isSignup && (
+                <Form.Group className="mb-3">
+                  <Form.Label className="text-white fw-semibold">Email</Form.Label>
+                  <Form.Control
+                    ref={email}
+                    type="email"
+                    placeholder="Enter email"
+                    className="bg-secondary text-white border-0 rounded-2"
+                    required
+                  />
+                </Form.Group>
+              )}
+
+              {/* Password */}
+              <Form.Group className="mb-4">
+                <Form.Label className="text-white fw-semibold">Password</Form.Label>
+                <Form.Control
+                  ref={password}
+                  type="password"
+                  placeholder="Enter password"
+                  className="bg-secondary text-white border-0 rounded-2"
+                  required
+                />
+              </Form.Group>
 
                                     <Button
                                         type="submit"
