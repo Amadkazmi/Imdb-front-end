@@ -138,34 +138,78 @@ const MovieDetails = () => {
   }
 
   return (
-    <div className="min-vh-100 bg-dark text-white">
-      <Container className="py-4">
-        {/* Back Button */}
-        <Row className="mb-4">
-          <Col>
-            <Button variant="outline-warning" onClick={handleBack}>
-              ← Back to Previous Page
-            </Button>
-          </Col>
-        </Row>
+<div className="min-vh-100 bg-dark text-white">
+  <Container className="py-4">
+    {/* Back Button */}
+    <Row className="mb-4">
+      <Col xs="12" className="d-flex justify-content-start">
+        <Button
+          variant="outline-warning"
+          onClick={handleBack}
+          className="d-flex align-items-center px-3 py-2 fw-semibold"
+          style={{
+            borderRadius: "50px",
+            transition: "all 0.2s ease-in-out",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#ffc10798";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          <i className="bi bi-arrow-left me-2"></i> Back to Previous Page
+        </Button>
+      </Col>
+    </Row>
+
 
         {/* Movie Details */}
         <Row>
           {/* Poster */}
-          <Col lg={4} md={5} className="mb-4">
-            <Card className="bg-secondary border-0 shadow">
-              <Card.Img
-                variant="top"
-                src={movie.imageUrl}
-                alt={movie.title}
-                style={{ height: "500px", objectFit: "cover" }}
-                onError={(e) =>
-                (e.currentTarget.src =
-                  "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
-                }
-              />
-            </Card>
-          </Col>
+         <Col lg={4} md={5} className="mb-4">
+  <Card 
+    className="bg-secondary border-0 shadow position-relative overflow-hidden"
+    style={{
+      borderRadius: "15px",
+      cursor: "pointer",
+      transition: "transform 0.3s, box-shadow 0.3s"
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "scale(1.03)";
+      e.currentTarget.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "0 4px 14px rgba(0,0,0,0.25)";
+    }}
+  >
+    <Card.Img
+      variant="top"
+      src={movie.imageUrl}
+      alt={movie.title}
+      style={{ height: "500px", objectFit: "cover", transition: "transform 0.3s" }}
+      onError={(e) =>
+        (e.currentTarget.src =
+          "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
+      }
+      loading="lazy"
+    />
+    {/* Overlay with Title */}
+    <div
+      className="position-absolute bottom-0 w-100 px-3 py-2"
+      style={{
+        background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+        color: "white"
+      }}
+    >
+      <h5 className="mb-0">{movie.title}</h5>
+      {movie.rating && (
+        <small className="text-warning">⭐ {movie.rating}</small>
+      )}
+    </div>
+  </Card>
+</Col>
 
           {/* Details */}
           <Col lg={8} md={7}>
