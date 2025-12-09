@@ -1,27 +1,39 @@
-import React, { useState } from 'react';
-
+import React, { useState } from 'react'
 
 const ExpandableText = ({ text = "" }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false)
 
   if (!text || text.trim() === "") {
-    return <span>No description available.</span>;
+    return <span className="text-muted">No description available.</span>
   }
 
-  const preview = text.length > 160 ? text.substring(0, 160) + "..." : text;
+  const preview = text.length > 180 ? text.substring(0, 180) + "..." : text
 
   return (
     <div>
-      <span>{expanded ? text : preview}</span>
-      {text.length > 160 && (
-        <span
-          style={{ color: "#ffc107", cursor: "pointer" }}
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? " Read less" : " Read more"}
-        </span>
+      <span style={{ lineHeight: '1.6' }}>
+        {expanded ? text : preview}
+      </span>
+
+      {text.length > 180 && (
+        <div>
+          <span
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              color: "#ffc107",
+              cursor: "pointer",
+              fontWeight: "600",
+              fontSize: "0.9rem"
+            }}
+            role="button"
+            aria-label={expanded ? "Read less" : "Read more"}
+          >
+            {expanded ? "▲ Read less" : "▼ Read more"}
+          </span>
+        </div>
       )}
     </div>
-  );
-};
-export default ExpandableText;
+  )
+}
+
+export default ExpandableText
