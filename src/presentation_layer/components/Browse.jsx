@@ -13,6 +13,8 @@ import {
 } from "react-bootstrap";
 import { apiService } from "../../data_access_layer/auth";
 
+const PAGE_SIZE = 4;
+
 const Browse = () => {
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
@@ -22,28 +24,51 @@ const Browse = () => {
   const [selectedGenre, setSelectedGenre] = useState("all");
   const [sortBy, setSortBy] = useState("latest");
 
-  // Placeholder genres; update based on backend MovieDto.Genres
-  const genres = ["all", "Action", "Comedy", "Drama", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "Documentary"];
+  const [page, setPage] = useState(0);
+  const [pageInfo, setPageInfo] = useState({
+    prev: null,
+    next: null,
+    current: 0,
+    totalPages: 0,
+    totalItems: 0,
+  });
+
+  const genres = [
+    "all",
+    "Action",
+    "Comedy",
+    "Drama",
+    "Horror",
+    "Mystery",
+    "Romance",
+    "Sci-Fi",
+    "Thriller",
+    "Documentary",
+  ];
 
   useEffect(() => {
-    fetchMovies();
-  }, []);
+    fetchMovies(page);
+  }, [page]);
 
   useEffect(() => {
     filterAndSortMovies();
   }, [movies, searchTerm, selectedGenre, sortBy]);
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (p) => {
     try {
       setLoading(true);
       setError("");
 
-      // Backend endpoint returning List<MovieDto>
       const response = await apiService.authenticatedFetch(
-        "https://localhost:7123/api/titlebasics"
+        `https://localhost:7123/api/titlebasics/paginated?Page=${p}&PageSize=${PAGE_SIZE}`
       );
 
-      const mapped = response.map((item) => ({
+      if (!response.items) {
+        setMovies([]);
+        return;
+      }
+
+      const mapped = response.items.map((item) => ({
         id: item.tconst,
         title: item.primaryTitle,
         description: item.plot || item.originalTitle || "No description",
@@ -59,6 +84,14 @@ const Browse = () => {
       }));
 
       setMovies(mapped);
+
+      setPageInfo({
+        prev: response.prev,
+        next: response.next,
+        current: p,
+        totalPages: response.numberOfPages,
+        totalItems: response.numberOfItems,
+      });
     } catch (err) {
       console.error(err);
       setError("Failed to load movies.");
@@ -104,6 +137,14 @@ const Browse = () => {
     }
   };
 
+  const goNext = () => {
+    if (page + 1 < pageInfo.totalPages) setPage(page + 1);
+  };
+
+  const goPrev = () => {
+    if (page > 0) setPage(page - 1);
+  };
+
   if (loading) {
     return (
       <div className="min-vh-100 bg-dark d-flex justify-content-center align-items-center">
@@ -131,7 +172,7 @@ const Browse = () => {
           </Col>
         </Row>
 
-        {/* Filters + Sort */}
+        {/* Filters */}
         <Row className="mb-3 align-items-center">
           <Col xs={12} md={8} className="mb-2 mb-md-0">
             <Nav variant="pills" className="flex-wrap">
@@ -169,31 +210,21 @@ const Browse = () => {
         <Row>
           {filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
-              <Col
-                key={movie.id}
-                lg={3}
-                md={4}
-                sm={6}
-                xs={12}
-                className="mb-4 d-flex"
-              >
+              <Col key={movie.id} lg={3} md={4} sm={6} xs={12} className="mb-4 d-flex">
                 <Card className="bg-secondary w-100 h-100 d-flex flex-column">
                   <Card.Img
                     src={movie.imageUrl}
                     style={{ height: "350px", objectFit: "cover" }}
                     onError={(e) =>
-                    (e.currentTarget.src =
-                      "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
+                      (e.currentTarget.src =
+                        "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
                     }
                   />
-
                   <Card.Body className="d-flex flex-column">
                     <Card.Title>{movie.title}</Card.Title>
-
-                        <Card.Text className="flex-grow-1">
-                          <ExpandableText text={movie.description} />
-                        </Card.Text>
-
+                    <Card.Text className="flex-grow-1">
+                      <ExpandableText text={movie.description} />
+                    </Card.Text>
                     <div className="mb-2">
                       {movie.genres.map((g) => (
                         <span key={g} className="badge bg-dark me-1">
@@ -201,11 +232,9 @@ const Browse = () => {
                         </span>
                       ))}
                     </div>
-
                     <small className="text-warning mb-2">
                       ⭐ {movie.rating} ({movie.votes} votes)
                     </small>
-
                     <div className="d-grid gap-2 mt-auto">
                       <Button
                         variant="warning"
@@ -214,13 +243,10 @@ const Browse = () => {
                       >
                         ➕ Bookmark
                       </Button>
-
                       <Button
                         variant="outline-light"
                         size="sm"
-                        onClick={() =>
-                          (window.location.href = `/movie/${movie.id}`)
-                        }
+                        onClick={() => (window.location.href = `/movie/${movie.id}`)}
                       >
                         ℹ️ Details
                       </Button>
@@ -235,8 +261,31 @@ const Browse = () => {
             </Col>
           )}
         </Row>
+
+        {/* Pagination Buttons */}
+        <Row className="mt-4">
+          <Col className="d-flex justify-content-center gap-3">
+            <Button
+              variant="secondary"
+              disabled={page === 0}
+              onClick={goPrev}
+            >
+              ← Prev
+            </Button>
+            <span className="text-white align-self-center">
+              Page {page + 1} of {pageInfo.totalPages}
+            </span>
+            <Button
+              variant="secondary"
+              disabled={page + 1 >= pageInfo.totalPages}
+              onClick={goNext}
+            >
+              Next →
+            </Button>
+          </Col>
+        </Row>
       </Container>
-    </div >
+    </div>
   );
 };
 

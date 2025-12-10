@@ -9,17 +9,20 @@ import {
   Spinner,
   Alert,
   Badge,
-  ListGroup,
   Form,
   Modal,
 } from "react-bootstrap";
 import { apiService } from "../../data_access_layer/auth";
+import { getTMDBPersonImages } from "../../data_access_layer/fetchTMDBPersonImages";
+
+const placeholderPoster = "https://via.placeholder.com/300x450?text=No+Image";
 
 const MovieDetails = () => {
   const { tconst } = useParams();
   const navigate = useNavigate();
 
   const [movie, setMovie] = useState(null);
+  const [actors, setActors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -27,76 +30,180 @@ const MovieDetails = () => {
   const [ratingValue, setRatingValue] = useState(1);
   const [ratingError, setRatingError] = useState("");
 
-  useEffect(() => {
-    if (tconst) {
-      fetchMovieDetails();
-    }
-  }, [tconst]);
+  // Function to clean up character string
+  const cleanCharacterString = (charString) => {
+    if (!charString) return "Unknown";
+    
+    // Remove the array brackets and quotes
+    return charString
+      .replace(/^\['|'\]$/g, '')  // Remove [' at start and '] at end
+      .replace(/''/g, "'")         // Fix double quotes
+      .trim();
+  };
 
-  const fetchMovieDetails = async () => {
+  // Function to fetch actor name from your API
+  const fetchActorName = async (nconst) => {
     try {
-      setLoading(true);
-      setError("");
-
-      const response = await apiService.authenticatedFetch(
-        `https://localhost:7123/api/titlebasics/${tconst}/details`
+      
+      const actorResponse = await apiService.authenticatedFetch(
+        `https://localhost:7123/api/namebasics/${nconst}`
       );
-
-      const mappedMovie = {
-        id: response.tconst,
-        title: response.primaryTitle,
-        originalTitle: response.originalTitle,
-        description:
-          response.plot ||
-          response.storyline ||
-          response.summary ||
-          "No description available",
-        genres: response.genres || [],
-        duration: response.runtimeMinutes
-          ? `${response.runtimeMinutes} min`
-          : "N/A",
-        releaseDate: response.startYear || "Unknown",
-        rating: response.averageRating ?? "N/A",
-        votes: response.numVotes ?? "N/A",
-        imageUrl:
-          response.poster && response.poster.trim() !== ""
-            ? response.poster
-            : "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg",
-        type: response.titleType || "Unknown",
-        isAdult: response.isAdult || false,
-        endYear: response.endYear || "N/A",
-      };
-
-      setMovie(mappedMovie);
+      return actorResponse?.primaryName || actorResponse?.name || "Unknown Actor";
     } catch (err) {
-      console.error(err);
-      setError("Failed to load movie details.");
-    } finally {
-      setLoading(false);
+      console.error(`Failed to fetch actor name for ${nconst}:`, err);
+      return "Unknown Actor";
     }
   };
 
-  // ----------------------------------------------------
-  // Rating Submit
-  // ----------------------------------------------------
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchMovieAndActors = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        // Fetch movie details
+        const response = await apiService.authenticatedFetch(
+          `https://localhost:7123/api/titlebasics/${tconst}/details`
+        );
+
+        if (!isMounted) return;
+
+        setMovie({
+          id: response.tconst,
+          title: response.primaryTitle,
+          originalTitle: response.originalTitle,
+          description: response.plot || "No description available",
+          genres: response.genres || [],
+          duration: response.runtimeMinutes ? `${response.runtimeMinutes} min` : "N/A",
+          releaseDate: response.startYear || "Unknown",
+          rating: response.averageRating ?? "N/A",
+          votes: response.numVotes ?? "N/A",
+          imageUrl: response.poster?.trim() || placeholderPoster,
+          type: response.titleType || "Unknown",
+          isAdult: response.isAdult || false,
+          endYear: response.endYear || "N/A",
+        });
+
+        // Fetch principals (actors/actresses)
+        const principals = await apiService.authenticatedFetch(
+          `https://localhost:7123/api/titlebasics/${tconst}/principals`
+        );
+
+        console.log("Fetched principals:", principals);
+
+        if (!isMounted) return;
+
+        // Filter only actors and actresses
+        const actorPrincipals = principals.filter(
+          (p) => p.category === "actor" || p.category === "actress"
+        );
+
+        // Track unique image URLs to prevent duplicates
+        const seenImageUrls = new Set();
+        const processedActors = [];
+        
+        // Process a limited number of actors (e.g., top 6-8) for better performance
+        const actorsToProcess = actorPrincipals.slice(0, 8);
+        
+        for (const p of actorsToProcess) {
+          if (!isMounted) break;
+          
+          try {
+            // Get TMDB images for this actor
+            const images = await getTMDBPersonImages(p.nconst);
+            
+            // If no images, skip this actor completely
+            if (!images || images.length === 0) {
+              console.log(`Skipping actor ${p.nconst} - no images found`);
+              continue;
+            }
+            
+            // Get the first image
+            const firstImage = images[0];
+            const imageUrl = `https://image.tmdb.org/t/p/w185${firstImage.file_path}`;
+            
+            // Check if this image URL is already used (duplicate)
+            if (seenImageUrls.has(imageUrl)) {
+              console.log(`Skipping duplicate image for actor ${p.nconst}: ${imageUrl}`);
+              continue;
+            }
+            
+            // Mark this image URL as seen
+            seenImageUrls.add(imageUrl);
+            
+            
+            let actorName = "Unknown Actor";
+            
+            
+            if (p.character && p.character !== "Unknown") {
+              // Use character name as a fallback
+              const characterName = cleanCharacterString(p.characters);
+              actorName = characterName;
+            }
+            
+            // Clean up the character string
+            const character = cleanCharacterString(p.characters);
+            
+            // Create actor object
+            const actor = {
+              ...p,
+              name: actorName,
+              character: character,
+              image: imageUrl,
+              tmdbId: firstImage.tmdbId || undefined,
+              uniqueKey: `${p.nconst}-${p.ordering}-${imageUrl}`
+            };
+            
+            processedActors.push(actor);
+          } catch (err) {
+            console.error(`Error processing actor ${p.nconst}:`, err);
+            continue;
+          }
+        }
+
+        if (!isMounted) return;
+
+        console.log("Processed actors:", processedActors);
+        setActors(processedActors);
+        
+      } catch (err) {
+        console.error(err);
+        if (isMounted) setError("Failed to load movie details.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchMovieAndActors();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tconst]);
+
+    const extractActorName = (characterName) => {
+    // Simple mapping for common cases
+    const nameMap = {
+      "Derek 'Del Boy' Trotter": "David Jason",
+      "Rodney Trotter": "Nicholas Lyndhurst",
+      "Trigger": "Roger Lloyd-Pack",
+      "Boycie": "John Challis",
+      
+    };
+    
+    return nameMap[characterName] || characterName || "Unknown Actor";
+  };
+
   const submitRating = async (e) => {
     e.preventDefault();
     setRatingError("");
-
     try {
-      const body = {
-        tConst: movie.id,
-        rating: Number(ratingValue),
-      };
-
-      await apiService.authenticatedFetch(
-        "https://localhost:7123/api/Ratings",
-        {
-          method: "POST",
-          body: JSON.stringify(body),
-        }
-      );
-
+      await apiService.authenticatedFetch("https://localhost:7123/api/Ratings", {
+        method: "POST",
+        body: JSON.stringify({ tConst: movie.id, rating: Number(ratingValue) }),
+      });
       alert("Rating submitted!");
       setShowRating(false);
     } catch (err) {
@@ -105,11 +212,11 @@ const MovieDetails = () => {
     }
   };
 
-  const handleBookmark = async (tconst) => {
+  const handleBookmark = async () => {
     try {
       await apiService.authenticatedFetch("https://localhost:7123/api/Bookmarks", {
         method: "POST",
-        body: JSON.stringify({ tconst }),
+        body: JSON.stringify({ tconst: movie.id }),
       });
       alert("Added to watchlist!");
     } catch (err) {
@@ -119,7 +226,6 @@ const MovieDetails = () => {
   };
 
   const handleBack = () => navigate(-1);
-  const handleGoToBrowse = () => navigate("/browse");
 
   if (loading) {
     return (
@@ -132,161 +238,154 @@ const MovieDetails = () => {
 
   if (error) {
     return (
-      <div className="min-vh-100 bg-dark">
-        <Container className="py-5">
-          <Alert variant="danger" className="text-center">
-            <Alert.Heading>Error</Alert.Heading>
-            {error}
-            <div className="mt-3">
-              <Button variant="outline-warning" onClick={handleBack} className="me-2">
-                ← Go Back
-              </Button>
-              <Button variant="warning" onClick={handleGoToBrowse}>
-                Browse Movies
-              </Button>
-            </div>
-          </Alert>
-        </Container>
-      </div>
+      <Container className="min-vh-100 py-5 bg-dark">
+        <Alert variant="danger" className="text-center">
+          <h4>Error</h4>
+          {error}
+          <div className="mt-3 d-flex justify-content-center gap-2">
+            <Button variant="outline-warning" onClick={handleBack}>
+              ← Go Back
+            </Button>
+            <Button variant="warning" onClick={() => navigate("/browse")}>
+              Browse Movies
+            </Button>
+          </div>
+        </Alert>
+      </Container>
     );
   }
 
   if (!movie) return null;
 
-return (
-  <div className="min-vh-100 bg-dark text-white">
-    <Container className="py-4">
-      {/* Back Button */}
-      <Row className="mb-4">
-        <Col xs="12" className="d-flex justify-content-start">
-          <Button
-            variant="outline-warning"
-            onClick={handleBack}
-            className="d-flex align-items-center px-3 py-2 fw-semibold"
-            style={{
-              borderRadius: "50px",
-              transition: "all 0.2s ease-in-out",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#ffc10798";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-            }}
-          >
-            <i className="bi bi-arrow-left me-2"></i> Back to Previous Page
-          </Button>
-        </Col>
-      </Row>
+  return (
+    <div className="min-vh-100 bg-dark text-white">
+      <Container className="py-4">
+        <Button variant="outline-warning" onClick={handleBack} className="mb-4">
+          ← Back
+        </Button>
 
-
-        <Row>
-          <Col lg={4} md={5} className="mb-4">
-            <Card className="bg-secondary border-0 shadow">
+        <Row className="g-4">
+          {/* Poster and Actors */}
+          <Col lg={4} md={5} className="d-flex flex-column align-items-center">
+            <Card
+              className="bg-secondary border-0 shadow"
+              style={{
+                width: "300px",
+                cursor: "pointer",
+                transition: "transform 0.3s, box-shadow 0.3s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+                e.currentTarget.style.boxShadow = "0 15px 30px rgba(0,0,0,0.5)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "0 4px 14px rgba(0,0,0,0.25)";
+              }}
+            >
               <Card.Img
-                variant="top"
                 src={movie.imageUrl}
                 alt={movie.title}
-                style={{ height: "500px", objectFit: "cover" }}
+                style={{ height: "450px", objectFit: "cover" }}
               />
             </Card>
+
+            {actors.length > 0 ? (
+              <>
+                <h5 className="mt-4 text-warning fw-bold">Cast</h5>
+                <p className="text-muted mb-0">
+                  Showing {actors.length} main cast members
+                </p>
+                <Row className="g-3 mt-2">
+                  {actors.map((actor) => {
+                    // Try to extract real actor name
+                    const displayName = extractActorName(actor.character);
+                    
+                    return (
+                      <Col key={actor.uniqueKey || `${actor.nconst}-${actor.ordering}`} xs={6} sm={4} md={4}>
+                        <div style={{ textDecoration: "none", color: "inherit" }}>
+                          <Card className="bg-dark border-secondary overflow-hidden">
+                            <div className="position-relative">
+                              <Card.Img
+                                src={actor.image}
+                                alt={displayName}
+                                style={{ 
+                                  height: "200px", 
+                                  width: "100%",
+                                  objectFit: "cover"
+                                }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                              <div 
+                                className="position-absolute bottom-0 start-0 end-0"
+                                style={{
+                                  background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
+                                  height: "60px"
+                                }}
+                              />
+                            </div>
+                            <Card.Body className="p-3">
+                              <div className="text-white fw-bold mb-1" style={{ fontSize: "0.9rem" }}>
+                                {displayName}
+                              </div>
+                              <div className="text-warning" style={{ fontSize: "0.8rem" }}>
+                                as {actor.character || "Unknown Role"}
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              </>
+            ) : (
+              !loading && (
+                <div className="mt-4 text-center">
+                  <h5 className="text-warning fw-bold">Cast</h5>
+                  <p className="text-muted">No actor photos available</p>
+                </div>
+              )
+            )}
           </Col>
-          {/* Poster */}
-         <Col lg={4} md={5} className="mb-4">
-  <Card 
-    className="bg-secondary border-0 shadow position-relative overflow-hidden"
-    style={{
-      borderRadius: "15px",
-      cursor: "pointer",
-      transition: "transform 0.3s, box-shadow 0.3s"
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "scale(1.03)";
-      e.currentTarget.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "0 4px 14px rgba(0,0,0,0.25)";
-    }}
-  >
-    <Card.Img
-      variant="top"
-      src={movie.imageUrl}
-      alt={movie.title}
-      style={{ height: "500px", objectFit: "cover", transition: "transform 0.3s" }}
-      onError={(e) =>
-        (e.currentTarget.src =
-          "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg")
-      }
-      loading="lazy"
-    />
-    {/* Overlay with Title */}
-    <div
-      className="position-absolute bottom-0 w-100 px-3 py-2"
-      style={{
-        background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
-        color: "white"
-      }}
-    >
-      <h5 className="mb-0">{movie.title}</h5>
-      {movie.rating && (
-        <small className="text-warning">⭐ {movie.rating}</small>
-      )}
-    </div>
-  </Card>
-</Col>
 
+          {/* Movie Info */}
           <Col lg={8} md={7}>
-            <h1 className="text-warning mb-2">{movie.title}</h1>
-
+            <h1 className="text-warning mb-2 fw-bold">{movie.title}</h1>
             {movie.originalTitle !== movie.title && (
-              <h5 className="text-muted mb-4">
-                Original Title: {movie.originalTitle}
-              </h5>
+              <h5 className="text-light mb-4">Original Title: {movie.originalTitle}</h5>
             )}
 
-            <div className="mb-4">
-              <Badge bg="warning" text="dark" className="fs-5 me-2 p-2">
+            <div className="mb-4 d-flex flex-wrap align-items-center gap-2">
+              <Badge bg="warning" text="dark" className="fs-6 fw-bold">
                 ⭐ {movie.rating}/10
               </Badge>
-              <span className="text-muted fs-5">
-                ({movie.votes.toLocaleString()} votes)
-              </span>
-
-              <Button
-                variant="warning"
-                size="sm"
-                className="ms-3 fw-bold"
-                onClick={() => setShowRating(true)}
-              >
+              <span className="text-light">({movie.votes.toLocaleString()} votes)</span>
+              <Button variant="warning" size="sm" onClick={() => setShowRating(true)}>
                 Rate Movie
               </Button>
             </div>
 
-            <h5 className="text-warning">Overview</h5>
-            <p>{movie.description}</p>
+            <h5 className="text-warning fw-bold">Overview</h5>
+            <p className="text-light">{movie.description}</p>
 
-            <Button
-              variant="warning"
-              className="me-2"
-              onClick={() => handleBookmark(movie.id)}
-            >
-              Add to Watchlist
-            </Button>
-
-            <Button
-              variant="outline-light"
-              onClick={() =>
-                window.open(`https://www.imdb.com/title/${movie.id}`, "_blank")
-              }
-            >
-              View on IMDb
-            </Button>
+            <div className="d-flex gap-2 flex-wrap">
+              <Button variant="warning" onClick={handleBookmark}>
+                Add to Watchlist
+              </Button>
+              <Button
+                variant="outline-light"
+                onClick={() => window.open(`https://www.imdb.com/title/${movie.id}`, "_blank")}
+              >
+                View on IMDb
+              </Button>
+            </div>
           </Col>
         </Row>
       </Container>
 
-      {/* Rating Modal */}
       <Modal show={showRating} onHide={() => setShowRating(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Rate {movie.title}</Modal.Title>
@@ -304,7 +403,6 @@ return (
                 onChange={(e) => setRatingValue(e.target.value)}
               />
             </Form.Group>
-
             <Button variant="warning" type="submit" className="mt-3 w-100">
               Submit Rating
             </Button>
