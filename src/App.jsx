@@ -10,6 +10,7 @@ import MovieFooter from './presentation_layer/components/MovieFooter';
 import About  from './presentation_layer/components/About';
 import Support from './presentation_layer/Support';
 import Contact from './presentation_layer/Contact';
+import Privacy from './presentation_layer/Privacy';
 function App() {
   return (
     <div className="bg-dark text-white min-vh-100">
@@ -36,7 +37,8 @@ export const appRouter = createBrowserRouter([
       { path: 'movie/:tconst', element: <MovieDetails /> }, // Add this line
       { path: 'about', element: <About /> },       // Added
       { path: 'contact', element: <Contact /> },   // Added
-      { path: 'support', element: <Support /> },   // Added 
+      { path: 'support', element: <Support /> }, 
+      { path: 'privacy', element: <Privacy /> },  // Added 
     ]
   }
 ]);

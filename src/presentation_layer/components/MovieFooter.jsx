@@ -51,7 +51,7 @@ const MovieFooter = () => {
               </li>
               <li className="d-flex align-items-center">
                 <BsShield className="me-2 text-warning" />
-                <Link className="footer-link" to="#">Privacy</Link>
+                <Link className="footer-link" to="/privacy">Privacy</Link>
               </li>
             </ul>
           </Col>
