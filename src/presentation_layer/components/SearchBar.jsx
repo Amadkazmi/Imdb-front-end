@@ -29,7 +29,7 @@ const SearchBar = () => {
                         type="text" 
                         ref={searchText} 
                         placeholder="Search for movies, TV shows, celebrities..." 
-                        className="bg-light text-dark border-warning"
+                        className="bg-light text-light border-warning"
                         onKeyPress={handleKeyPress}
                     />
                     <Button 
