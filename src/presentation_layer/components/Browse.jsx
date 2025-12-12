@@ -13,7 +13,7 @@ import {
 } from "react-bootstrap";
 import { apiService } from "../../data_access_layer/auth";
 
-const PAGE_SIZE = 8000;
+const PAGE_SIZE = 52;
 
 const Browse = () => {
   const [movies, setMovies] = useState([]);
