@@ -7,11 +7,11 @@ const ExpandableText = ({ text = "" }) => {
     return <span className="text-muted">No description available.</span>
   }
 
-  const preview = text.length > 180 ? text.substring(0, 180) + "..." : text
+  const preview = text.length > 180 ? text.substring(0, 100) + "..." : text
 
   return (
     <div>
-      <span style={{ lineHeight: '1.6' }}>
+      <span style={{ lineHeight: '1.9' }}>
         {expanded ? text : preview}
       </span>
 
@@ -20,7 +20,7 @@ const ExpandableText = ({ text = "" }) => {
           <span
             onClick={() => setExpanded(!expanded)}
             style={{
-              color: "#ffc107",
+              color: "#362e17ff",
               cursor: "pointer",
               fontWeight: "600",
               fontSize: "0.9rem"

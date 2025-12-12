@@ -13,7 +13,7 @@ import Contact from './presentation_layer/Contact';
 import Privacy from './presentation_layer/Privacy';
 function App() {
   return (
-    <div className="bg-dark text-white min-vh-100">
+    <div className=" text-white min-vh-100">
       <MovieNavbar />
      
       <div className="container-fluid mt-4">

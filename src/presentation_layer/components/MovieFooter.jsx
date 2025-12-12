@@ -5,7 +5,7 @@ import { BsInfoCircle, BsEnvelope, BsLifePreserver, BsShield } from "react-icons
 
 const MovieFooter = () => {
   return (
-    <footer className="bg-dark text-secondary border-top border-secondary mt-auto">
+    <footer className="bg-body-tertiary text-secondary border-top border-secondary mt-auto">
       <Container fluid className="pt-5 pb-4 px-4">
 
         {/* Top Section */}
@@ -25,7 +25,7 @@ const MovieFooter = () => {
       IMDb
     </span>
   </div>
-  <p className="small lh-lg text-light mt-2">
+  <p className="lh-lg text-dark fw-bold mt-2">
     Your Entertainment Hub — discover movies, shows, ratings, and reviews with a modern and clean experience.
   </p>
 </Col>
@@ -33,25 +33,23 @@ const MovieFooter = () => {
 
           {/* Company Section with Privacy */}
           <Col lg={3} md={6} className="footer-links">
-            <h6 className="text-uppercase text-white fw-semibold mb-3">
-              Company
-            </h6>
+          
             <ul className="list-unstyled small">
               <li className="mb-2 d-flex align-items-center">
-                <BsInfoCircle className="me-2 text-warning" />
-                <Link className="footer-link" to="/about">About</Link>
+                <BsInfoCircle className="me-2 text-dark" />
+                <Link className="footer-link fw-bold" to="/about">About</Link>
               </li>
               <li className="mb-2 d-flex align-items-center">
-                <BsEnvelope className="me-2 text-warning" />
-                <Link className="footer-link" to="/contact">Contact</Link>
+                <BsEnvelope className="me-2 text-dark " />
+                <Link className="footer-link fw-bold" to="/contact">Contact</Link>
               </li>
               <li className="mb-2 d-flex align-items-center">
-                <BsLifePreserver className="me-2 text-warning" />
-                <Link className="footer-link" to="/support">Support</Link>
+                <BsLifePreserver className="me-2 text-dark" />
+                <Link className="footer-link fw-bold" to="/support">Support</Link>
               </li>
               <li className="d-flex align-items-center">
-                <BsShield className="me-2 text-warning" />
-                <Link className="footer-link" to="/privacy">Privacy</Link>
+                <BsShield className="me-2 text-dark" />
+                <Link className="footer-link fw-bold" to="/privacy">Privacy</Link>
               </li>
             </ul>
           </Col>
@@ -60,7 +58,7 @@ const MovieFooter = () => {
 
         {/* Bottom Section */}
         <Row className="border-top border-secondary pt-3 mt-4 small align-items-center">
-          <Col className="text-center text-md-center">
+          <Col className="text-center text-md-center text-dark fw-bold">
             © {new Date().getFullYear()} IMDB. All rights reserved.
           </Col>
         </Row>

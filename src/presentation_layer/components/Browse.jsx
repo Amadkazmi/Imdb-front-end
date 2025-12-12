@@ -13,7 +13,7 @@ import {
 } from "react-bootstrap";
 import { apiService } from "../../data_access_layer/auth";
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 8000;
 
 const Browse = () => {
   const [movies, setMovies] = useState([]);
@@ -147,19 +147,19 @@ const Browse = () => {
 
   if (loading) {
     return (
-      <div className="min-vh-100 bg-dark d-flex justify-content-center align-items-center">
+      <div className="min-vh-100 bg-body-tertiary d-flex justify-content-center align-items-center">
         <Spinner animation="border" variant="warning" />
       </div>
     );
   }
 
   return (
-    <div className="min-vh-100 bg-dark text-white">
+    <div className="min-vh-100 bg-body-tertiary text-white">
       <Container fluid className="py-3">
         {/* Header + Search */}
         <Row className="mb-3">
           <Col xs={12} md={6}>
-            <h2 className="text-warning">🎬 Movie Library</h2>
+            <h2 className="text-dark">🎬 Movie Library</h2>
           </Col>
           <Col xs={12} md={6} className="mt-2 mt-md-0">
             <Form.Control
@@ -167,7 +167,7 @@ const Browse = () => {
               placeholder="Search movies..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-secondary text-white"
+              className="bg-light text-dark align-self-center"
             />
           </Col>
         </Row>
@@ -184,7 +184,7 @@ const Browse = () => {
                     className={
                       selectedGenre === g
                         ? "bg-warning text-dark"
-                        : "bg-secondary text-white"
+                        : "bg-dark text-white"
                     }
                   >
                     {g}
@@ -211,7 +211,7 @@ const Browse = () => {
           {filteredMovies.length > 0 ? (
             filteredMovies.map((movie) => (
               <Col key={movie.id} lg={3} md={4} sm={6} xs={12} className="mb-4 d-flex">
-                <Card className="bg-secondary w-100 h-100 d-flex flex-column">
+                <Card className="bg-success-subtle w-100 h-100 d-flex flex-column">
                   <Card.Img
                     src={movie.imageUrl}
                     style={{ height: "350px", objectFit: "cover" }}
@@ -221,7 +221,7 @@ const Browse = () => {
                     }
                   />
                   <Card.Body className="d-flex flex-column">
-                    <Card.Title>{movie.title}</Card.Title>
+                    <Card.Title className="text-black fw-bold">{movie.title}</Card.Title>
                     <Card.Text className="flex-grow-1">
                       <ExpandableText text={movie.description} />
                     </Card.Text>
@@ -232,7 +232,7 @@ const Browse = () => {
                         </span>
                       ))}
                     </div>
-                    <small className="text-warning mb-2">
+                    <small className="text-black bg-success-subtle mb-2">
                       ⭐ {movie.rating} ({movie.votes} votes)
                     </small>
                     <div className="d-grid gap-2 mt-auto">
@@ -244,11 +244,12 @@ const Browse = () => {
                         ➕ Bookmark
                       </Button>
                       <Button
-                        variant="outline-light"
-                        size="sm"
+                        text="dark fw-bold"
+                        variant="outline-dark"
+                        size="mm"
                         onClick={() => (window.location.href = `/movie/${movie.id}`)}
                       >
-                        ℹ️ Details
+                        ℹ️ Movie info
                       </Button>
                     </div>
                   </Card.Body>
@@ -266,17 +267,17 @@ const Browse = () => {
         <Row className="mt-4">
           <Col className="d-flex justify-content-center gap-3">
             <Button
-              variant="secondary"
+              variant="dark"
               disabled={page === 0}
               onClick={goPrev}
             >
               ← Prev
             </Button>
-            <span className="text-white align-self-center">
+            <span className="text-dark fw-bold align-self-center">
               Page {page + 1} of {pageInfo.totalPages}
             </span>
             <Button
-              variant="secondary"
+              variant="dark"
               disabled={page + 1 >= pageInfo.totalPages}
               onClick={goNext}
             >
