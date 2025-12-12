@@ -34,7 +34,7 @@ const MovieFooter = () => {
           {/* Company Section with Privacy */}
           <Col lg={3} md={6} className="footer-links">
             <h6 className="text-uppercase text-white fw-semibold mb-3">
-              Company
+              Info.
             </h6>
             <ul className="list-unstyled small">
               <li className="mb-2 d-flex align-items-center">
