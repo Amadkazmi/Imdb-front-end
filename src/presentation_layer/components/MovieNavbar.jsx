@@ -12,9 +12,6 @@ const MovieNavbar = () => {
   const mobileMenuRef = useRef(null);
   const searchRef = useRef(null);
 
-  // Check token
-  const hasToken = !!localStorage.getItem('jwtToken');
-
   // Close mobile menu on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,6 +43,7 @@ const MovieNavbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userData');
+    setUserData(null);
     navigate('/login');
   };
 
@@ -75,9 +73,18 @@ const MovieNavbar = () => {
       <Navbar bg="dark" variant="dark" className="border-bottom border-secondary py-2" fixed="top">
         <Container fluid>
           <div className="d-flex justify-content-between align-items-center w-100">
+
             {/* Logo */}
-            <Navbar.Brand href="#" className="fw-bold text-warning fs-4">
-              MDB
+            <Navbar.Brand
+              role="button"
+              onClick={() => navigate('/')}
+              className="d-flex align-items-center bg-warning text-dark fw-bold px-5 py-2 rounded"
+              style={{ cursor: 'pointer', fontSize: '1.3rem', letterSpacing: '1px' }}
+              tabIndex={0}
+              aria-label="Go to homepage"
+              onKeyDown={(e) => e.key === 'Enter' && navigate('/')}
+            >
+              IMDb
             </Navbar.Brand>
 
             {/* Search Bar */}
@@ -140,9 +147,33 @@ const MovieNavbar = () => {
                   </Button>
                 </>
               ) : (
-                <Button variant="outline-danger" size="sm" onClick={handleLogout}>
-                  Logout
-                </Button>
+                <>
+                  {userData && (
+                    <Dropdown align="end">
+                      <Dropdown.Toggle
+                        variant="outline-warning"
+                        id="user-dropdown"
+                        size="sm"
+                        className="fw-semibold"
+                      >
+                        {userData.displayName || userData.email}
+                      </Dropdown.Toggle>
+
+                      <Dropdown.Menu className=" border-secondary">
+                        <Dropdown.ItemText>
+                          <strong>Username:</strong> {userData.displayName || userData.email}
+                        </Dropdown.ItemText>
+                        <Dropdown.ItemText>
+                          <strong>Email:</strong> {userData.email}
+                        </Dropdown.ItemText>
+                        <Dropdown.Divider />
+                        <Dropdown.Item onClick={handleLogout} className="text-danger">
+                          Logout
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  )}
+                </>
               )}
 
               {/* Mobile menu button */}
@@ -182,9 +213,16 @@ const MovieNavbar = () => {
                 </Button>
               </>
             ) : (
-              <Button variant="outline-danger" size="lg" onClick={handleLogout}>
-                Logout
-              </Button>
+              <>
+                {userData && (
+                  <div className="text-warning text-center mb-2 fw-semibold">
+                    {userData.name || userData.email}
+                  </div>
+                )}
+                <Button variant="outline-danger" size="lg" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
             )}
           </div>
         </Offcanvas.Body>
