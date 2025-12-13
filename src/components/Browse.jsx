@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Container,
   Row,
@@ -13,6 +14,7 @@ import {
 import { apiService } from "../utils/auth";
 
 const Browse = () => {
+  const location = useLocation();
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,8 +27,31 @@ const Browse = () => {
   const genres = ["all", "Action", "Comedy", "Drama", "Horror", "Mystery", "Romance", "Sci-Fi", "Thriller", "Documentary"];
 
   useEffect(() => {
-    fetchMovies();
-  }, []);
+    if (location.state?.searchResults) {
+      // Map the search results if they match the raw API format
+      const rawResults = location.state.searchResults;
+      const mapped = rawResults.map((item) => ({
+        id: item.tconst,
+        title: item.primaryTitle,
+        description: item.plot || item.originalTitle || "No description",
+        genres: item.genres || [],
+        duration: item.runtimeMinutes ? `${item.runtimeMinutes} min` : "N/A",
+        releaseDate: item.startYear || 0,
+        rating: item.averageRating ?? "N/A",
+        votes: item.numVotes ?? "N/A",
+        imageUrl:
+          item.poster && item.poster.trim() !== ""
+            ? item.poster
+            : "https://m.media-amazon.com/images/M/MV5BMTU3OTA5NTAxNF5BMl5BanBnXkFtZTcwOTMwNjI0MQ@@._V1_SX300.jpg",
+      }));
+      setMovies(mapped);
+      setLoading(false);
+      // Optional: Clear state so refresh fetches all movies again, or keep it to persist search
+      // window.history.replaceState({}, document.title); 
+    } else {
+      fetchMovies();
+    }
+  }, [location.state]);
 
   useEffect(() => {
     filterAndSortMovies();
@@ -114,7 +139,7 @@ const Browse = () => {
   return (
     <div className="min-vh-100 bg-dark text-white">
       <Container fluid className="py-3">
-        {/* Header + Search */}
+        {/* Header + Search
         <Row className="mb-3">
           <Col xs={12} md={6}>
             <h2 className="text-warning">🎬 Movie Library</h2>
@@ -128,7 +153,7 @@ const Browse = () => {
               className="bg-secondary text-white"
             />
           </Col>
-        </Row>
+        </Row> */}
 
         {/* Filters + Sort */}
         <Row className="mb-3 align-items-center">
