@@ -87,7 +87,9 @@ const MovieNavbar = () => {
                         size="sm"
                         className="fw-semibold"
                       >
+                        {`👤`}
                         {userData.displayName || userData.email}
+
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu className=" border-secondary">
