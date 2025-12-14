@@ -131,12 +131,12 @@ const MovieDetails = () => {
 
   if (error) {
     return (
-      <Container className="min-vh-100 py-5 bg-dark">
+      <Container className="min-vh-100 py-5 bg-body-tertiary">
         <Alert variant="danger" className="text-center">
           <h4>Error</h4>
           {error}
-          <div className="mt-3 d-flex justify-content-center gap-2">
-            <Button variant="outline-warning" onClick={handleBack}>
+          <div className="mt-3 d-flex text-dark justify-content-center gap-2">
+            <Button className="btn btn-dark" onClick={handleBack}>
               ← Go Back
             </Button>
             <Button variant="warning" onClick={() => navigate("/browse")}>
@@ -151,9 +151,9 @@ const MovieDetails = () => {
   if (!movie) return null;
 
   return (
-    <div className="min-vh-100 bg-dark text-white">
+    <div className="min-vh-100 bg-body-tertiary text-white">
       <Container className="py-4">
-        <Button variant="outline-warning" onClick={handleBack} className="mb-4">
+        <Button variant="outline-warning"  className="btn btn-dark mb-4" onClick={handleBack}>
           ← Back
         </Button>
 
@@ -169,7 +169,7 @@ const MovieDetails = () => {
 
             {actors.length > 0 && (
               <>
-                <h5 className="mt-4 text-warning fw-bold">Cast</h5>
+                <h5 className="mt-4 text-dark fw-bold">Cast</h5>
                 <p className="text-muted mb-0">
                   Showing {actors.length} main cast members
                 </p>
@@ -183,7 +183,7 @@ const MovieDetails = () => {
                       className="d-flex justify-content-center"
                     >
                       <Card
-                        className="bg-dark border-secondary overflow-hidden"
+                        className="bg-body-tertiary border-secondary overflow-hidden"
                         style={{ cursor: "pointer" }}
                         onClick={() => handleActorClick(actor)}
                       >
@@ -210,7 +210,7 @@ const MovieDetails = () => {
                           }}
                         />
                         <Card.Body className="p-3 text-center">
-                          <div className="text-white fw-bold mb-1" style={{ fontSize: "0.9rem" }}>
+                          <div className="text-dark fw-bold mb-1" style={{ fontSize: "0.9rem" }}>
                             {actor.name}
                           </div>
                           <div className="text-warning" style={{ fontSize: "0.8rem" }}>
@@ -226,18 +226,18 @@ const MovieDetails = () => {
           </Col>
 
           <Col lg={8} md={7}>
-            <h1 className="text-warning mb-2 fw-bold">{movie.title}</h1>
+            <h1 className="text-dark mb-2 fw-bold">{movie.title}</h1>
             {movie.originalTitle !== movie.title && (
-              <h5 className="text-light mb-4">Original Title: {movie.originalTitle}</h5>
+              <h5 className="text-dark mb-4">Original Title: {movie.originalTitle}</h5>
             )}
             <div className="mb-4 d-flex flex-wrap align-items-center gap-2">
               <Badge bg="warning" text="dark" className="fs-6 fw-bold">
                 ⭐ {movie.rating}/10
               </Badge>
-              <span className="text-light">({movie.votes.toLocaleString()} votes)</span>
+              <span className="text-dark">({movie.votes.toLocaleString()} votes)</span>
             </div>
-            <h5 className="text-warning fw-bold">Overview</h5>
-            <p className="text-light">{movie.description}</p>
+            <h5 className="text-dark fw-bold">Overview</h5>
+            <p className="text-dark">{movie.description}</p>
           </Col>
         </Row>
       </Container>
