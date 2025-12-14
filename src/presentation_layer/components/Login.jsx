@@ -161,7 +161,7 @@ const Login = () => {
                   ref={password}
                   type="password"
                   placeholder="Enter password"
-                  className=" text-white border-0 rounded-2"
+                  className=" text-dark border-0 rounded-2"
                   required
                 />
               </Form.Group>
