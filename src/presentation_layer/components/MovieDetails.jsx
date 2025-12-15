@@ -28,12 +28,17 @@ const MovieDetails = () => {
 
   const [showRating, setShowRating] = useState(false);
   const [ratingValue, setRatingValue] = useState(1);
+
   const [ratingError, setRatingError] = useState("");
+
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const [noteError, setNoteError] = useState("");
 
   // Function to clean up character string
   const cleanCharacterString = (charString) => {
     if (!charString) return "Unknown";
-    
+
     // Remove the array brackets and quotes
     return charString
       .replace(/^\['|'\]$/g, '')  // Remove [' at start and '] at end
@@ -44,7 +49,7 @@ const MovieDetails = () => {
   // Function to fetch actor name from your API
   const fetchActorName = async (nconst) => {
     try {
-      
+
       const actorResponse = await apiService.authenticatedFetch(
         `https://localhost:7123/api/namebasics/${nconst}`
       );
@@ -103,49 +108,49 @@ const MovieDetails = () => {
         // Track unique image URLs to prevent duplicates
         const seenImageUrls = new Set();
         const processedActors = [];
-        
+
         // Process a limited number of actors (e.g., top 6-8) for better performance
         const actorsToProcess = actorPrincipals.slice(0, 8);
-        
+
         for (const p of actorsToProcess) {
           if (!isMounted) break;
-          
+
           try {
             // Get TMDB images for this actor
             const images = await getTMDBPersonImages(p.nconst);
-            
+
             // If no images, skip this actor completely
             if (!images || images.length === 0) {
               console.log(`Skipping actor ${p.nconst} - no images found`);
               continue;
             }
-            
+
             // Get the first image
             const firstImage = images[0];
             const imageUrl = `https://image.tmdb.org/t/p/w185${firstImage.file_path}`;
-            
+
             // Check if this image URL is already used (duplicate)
             if (seenImageUrls.has(imageUrl)) {
               console.log(`Skipping duplicate image for actor ${p.nconst}: ${imageUrl}`);
               continue;
             }
-            
+
             // Mark this image URL as seen
             seenImageUrls.add(imageUrl);
-            
-            
+
+
             let actorName = "Unknown Actor";
-            
-            
+
+
             if (p.character && p.character !== "Unknown") {
               // Use character name as a fallback
               const characterName = cleanCharacterString(p.characters);
               actorName = characterName;
             }
-            
+
             // Clean up the character string
             const character = cleanCharacterString(p.characters);
-            
+
             // Create actor object
             const actor = {
               ...p,
@@ -155,7 +160,7 @@ const MovieDetails = () => {
               tmdbId: firstImage.tmdbId || undefined,
               uniqueKey: `${p.nconst}-${p.ordering}-${imageUrl}`
             };
-            
+
             processedActors.push(actor);
           } catch (err) {
             console.error(`Error processing actor ${p.nconst}:`, err);
@@ -167,7 +172,7 @@ const MovieDetails = () => {
 
         console.log("Processed actors:", processedActors);
         setActors(processedActors);
-        
+
       } catch (err) {
         console.error(err);
         if (isMounted) setError("Failed to load movie details.");
@@ -183,16 +188,16 @@ const MovieDetails = () => {
     };
   }, [tconst]);
 
-    const extractActorName = (characterName) => {
+  const extractActorName = (characterName) => {
     // Simple mapping for common cases
     const nameMap = {
       "Derek 'Del Boy' Trotter": "David Jason",
       "Rodney Trotter": "Nicholas Lyndhurst",
       "Trigger": "Roger Lloyd-Pack",
       "Boycie": "John Challis",
-      
+
     };
-    
+
     return nameMap[characterName] || characterName || "Unknown Actor";
   };
 
@@ -222,6 +227,27 @@ const MovieDetails = () => {
     } catch (err) {
       console.error(err);
       alert("Failed to add to watchlist.");
+    }
+  };
+
+  const submitNote = async (e) => {
+    e.preventDefault();
+    setNoteError("");
+    try {
+      await apiService.authenticatedFetch("https://localhost:7123/api/Notes", {
+        method: "POST",
+        body: JSON.stringify({
+          NoteText: noteText,
+          TConst: movie.id,
+          NConst: null
+        }),
+      });
+      alert("Note added successfully!");
+      setShowNoteModal(false);
+      setNoteText("");
+    } catch (err) {
+      console.error(err);
+      setNoteError("Failed to add note.");
     }
   };
 
@@ -300,7 +326,7 @@ const MovieDetails = () => {
                   {actors.map((actor) => {
                     // Try to extract real actor name
                     const displayName = extractActorName(actor.character);
-                    
+
                     return (
                       <Col key={actor.uniqueKey || `${actor.nconst}-${actor.ordering}`} xs={6} sm={4} md={4}>
                         <div style={{ textDecoration: "none", color: "inherit" }}>
@@ -309,8 +335,8 @@ const MovieDetails = () => {
                               <Card.Img
                                 src={actor.image}
                                 alt={displayName}
-                                style={{ 
-                                  height: "200px", 
+                                style={{
+                                  height: "200px",
                                   width: "100%",
                                   objectFit: "cover"
                                 }}
@@ -318,7 +344,7 @@ const MovieDetails = () => {
                                   e.target.style.display = 'none';
                                 }}
                               />
-                              <div 
+                              <div
                                 className="position-absolute bottom-0 start-0 end-0"
                                 style={{
                                   background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
@@ -375,6 +401,9 @@ const MovieDetails = () => {
               <Button variant="warning" onClick={handleBookmark}>
                 Add to Watchlist
               </Button>
+              <Button variant="outline-warning" onClick={() => setShowNoteModal(true)}>
+                Add Note
+              </Button>
               <Button
                 variant="outline-light"
                 onClick={() => window.open(`https://www.imdb.com/title/${movie.id}`, "_blank")}
@@ -405,6 +434,31 @@ const MovieDetails = () => {
             </Form.Group>
             <Button variant="warning" type="submit" className="mt-3 w-100">
               Submit Rating
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showNoteModal} onHide={() => setShowNoteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Note for {movie.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {noteError && <Alert variant="danger">{noteError}</Alert>}
+          <Form onSubmit={submitNote}>
+            <Form.Group>
+              <Form.Label>Your Note</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="Enter your thoughts..."
+                required
+              />
+            </Form.Group>
+            <Button variant="warning" type="submit" className="mt-3 w-100">
+              Save Note
             </Button>
           </Form>
         </Modal.Body>
