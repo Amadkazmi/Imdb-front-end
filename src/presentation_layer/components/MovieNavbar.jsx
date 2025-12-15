@@ -1,13 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Navbar, Container, Button, Offcanvas, Form, ListGroup } from 'react-bootstrap';
-import { apiService } from '../utils/auth';
+import { Navbar, Container, Button, Offcanvas, Form, ListGroup, Dropdown } from 'react-bootstrap';
+import { apiService } from '../../data_access_layer/auth';
 
 const MovieNavbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+
+  const [userData, setUserData] = useState(() => {
+    const stored = localStorage.getItem('userData');
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const hasToken = !!userData; // or !!localStorage.getItem('jwtToken') if preferred, but userData syncs with state
+
   const navigate = useNavigate();
   const mobileMenuRef = useRef(null);
   const searchRef = useRef(null);
@@ -167,6 +175,10 @@ const MovieNavbar = () => {
                           <strong>Email:</strong> {userData.email}
                         </Dropdown.ItemText>
                         <Dropdown.Divider />
+                        <Dropdown.Item onClick={() => navigate('/bookmarks')}>
+                          📑 My Bookmarks
+                        </Dropdown.Item>
+                        <Dropdown.Divider />
                         <Dropdown.Item onClick={handleLogout} className="text-danger">
                           Logout
                         </Dropdown.Item>
@@ -219,6 +231,12 @@ const MovieNavbar = () => {
                     {userData.name || userData.email}
                   </div>
                 )}
+                <Button variant="outline-warning" size="lg" onClick={() => {
+                  navigate('/bookmarks');
+                  setShowMobileMenu(false);
+                }}>
+                  📑 My Bookmarks
+                </Button>
                 <Button variant="outline-danger" size="lg" onClick={handleLogout}>
                   Logout
                 </Button>
