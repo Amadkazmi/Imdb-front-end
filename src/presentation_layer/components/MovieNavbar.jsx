@@ -14,9 +14,7 @@ const MovieNavbar = () => {
     return stored ? JSON.parse(stored) : null;
   });
 
-  const hasToken = !!userData; // or !!localStorage.getItem('jwtToken') if preferred, but userData syncs with state
-
-  const navigate = useNavigate();
+  const hasToken = !!userData;
   const mobileMenuRef = useRef(null);
   const searchRef = useRef(null);
 
@@ -41,8 +39,12 @@ const MovieNavbar = () => {
         method: "GET"
       });
 
-      const historyItems = Array.isArray(history) ? history.map(h => h.keyword || h).slice(0, 5) : [];
-      setSearchHistory(historyItems);
+      if (Array.isArray(history)) {
+        const uniqueHistory = [...new Set(history.map(h => h.searchQuery).filter(q => q))].slice(0, 5);
+        setSearchHistory(uniqueHistory);
+      } else {
+        setSearchHistory([]);
+      }
     } catch (error) {
       console.error("Failed to fetch search history", error);
     }
@@ -178,6 +180,9 @@ const MovieNavbar = () => {
                         <Dropdown.Item onClick={() => navigate('/bookmarks')}>
                           📑 My Bookmarks
                         </Dropdown.Item>
+                        <Dropdown.Item onClick={() => navigate('/notes')}>
+                          📝 My Notes
+                        </Dropdown.Item>
                         <Dropdown.Divider />
                         <Dropdown.Item onClick={handleLogout} className="text-danger">
                           Logout
@@ -236,6 +241,12 @@ const MovieNavbar = () => {
                   setShowMobileMenu(false);
                 }}>
                   📑 My Bookmarks
+                </Button>
+                <Button variant="outline-warning" size="lg" onClick={() => {
+                  navigate('/notes');
+                  setShowMobileMenu(false);
+                }}>
+                  📝 My Notes
                 </Button>
                 <Button variant="outline-danger" size="lg" onClick={handleLogout}>
                   Logout

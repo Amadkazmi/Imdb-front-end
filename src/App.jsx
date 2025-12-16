@@ -27,6 +27,7 @@ function App() {
 export default App;
 
 import Bookmarks from './presentation_layer/components/Bookmarks';
+import Notes from './presentation_layer/components/Notes'; // Added
 
 export const appRouter = createBrowserRouter([
   {
@@ -36,12 +37,13 @@ export const appRouter = createBrowserRouter([
       { index: true, element: <Browse /> },
       { path: 'login', element: <Login /> },
       { path: 'browse', element: <Browse /> },
-      { path: 'bookmarks', element: <Bookmarks /> }, // Added
+      { path: 'bookmarks', element: <Bookmarks /> },
+      { path: 'notes', element: <Notes /> },       // Added
       { path: 'movie/:tconst', element: <MovieDetails /> },
-      { path: 'about', element: <About /> },       // Added
-      { path: 'contact', element: <Contact /> },   // Added
+      { path: 'about', element: <About /> },
+      { path: 'contact', element: <Contact /> },
       { path: 'support', element: <Support /> },
-      { path: 'privacy', element: <Privacy /> },  // Added 
+      { path: 'privacy', element: <Privacy /> },
     ]
   }
 ]);
