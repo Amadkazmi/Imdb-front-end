@@ -109,17 +109,17 @@ const Login = () => {
     };
 
     return (
-       <div className="min-vh-100 bg-dark d-flex align-items-center justify-content-center">
+       <div className="min-vh-100 bg-body-tertiary d-flex align-items-center justify-content-center">
   <Container>
     <Row className="justify-content-center">
       <Col xs={12} sm={8} md={6} lg={4}>
-        <Card className="bg-dark border-secondary shadow-lg rounded-3">
+        <Card className="bg-body-tertiary border-secondary shadow-lg rounded-3">
           <Card.Body className="p-4">
 
             {/* Header */}
             <div className="text-center mb-4">
               <h2 className="text-warning fw-bold mb-1">🎬 MOVIEDB</h2>
-              <h5 className="text-white fw-normal">{isSignup ? 'Create Your Account' : 'Sign In'}</h5>
+              <h5 className="text-dark fw-normal">{isSignup ? 'Create Your Account' : 'Sign In'}</h5>
             </div>
 
             {/* Error Alert */}
@@ -130,12 +130,12 @@ const Login = () => {
 
               {/* Username */}
               <Form.Group className="mb-3">
-                <Form.Label className="text-white fw-semibold">Username</Form.Label>
+                <Form.Label className="text-dark fw-semibold">Username</Form.Label>
                 <Form.Control
                   ref={username}
                   type="text"
                   placeholder="Enter username"
-                  className="bg-secondary text-white border-0 rounded-2"
+                  className="text-dark border-0 rounded-2"
                   required
                 />
               </Form.Group>
@@ -143,12 +143,12 @@ const Login = () => {
               {/* Email (Signup only) */}
               {isSignup && (
                 <Form.Group className="mb-3">
-                  <Form.Label className="text-white fw-semibold">Email</Form.Label>
+                  <Form.Label className="text-dark fw-semibold">Email</Form.Label>
                   <Form.Control
                     ref={email}
                     type="email"
                     placeholder="Enter email"
-                    className="bg-secondary text-white border-0 rounded-2"
+                    className=" text-dark border-0 rounded-2"
                     required
                   />
                 </Form.Group>
@@ -156,12 +156,12 @@ const Login = () => {
 
               {/* Password */}
               <Form.Group className="mb-4">
-                <Form.Label className="text-white fw-semibold">Password</Form.Label>
+                <Form.Label className="text-dark fw-semibold">Password</Form.Label>
                 <Form.Control
                   ref={password}
                   type="password"
                   placeholder="Enter password"
-                  className="bg-secondary text-white border-0 rounded-2"
+                  className=" text-dark border-0 rounded-2"
                   required
                 />
               </Form.Group>
@@ -198,9 +198,7 @@ const Login = () => {
                                     </p>
                                 </div>
 
-                                <div className="mt-3 text-muted small text-center">
-                                    Connected to: {API_BASE_URL}
-                                </div>
+                               
                             </Card.Body>
                         </Card>
                     </Col>

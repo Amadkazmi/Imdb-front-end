@@ -1,9 +1,10 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BsInfoCircle, BsEnvelope, BsLifePreserver, BsShield } from "react-icons/bs";
 
 const MovieFooter = () => {
+  const navigate = useNavigate();
   return (
     <footer className="bg-body-tertiary text-secondary border-top border-secondary mt-auto">
       <Container fluid className="pt-5 pb-4 px-4">
@@ -21,6 +22,7 @@ const MovieFooter = () => {
         letterSpacing: '1px',
         cursor: 'default'
       }}
+      onClick={() => navigate('/')}
     >
       IMDb
     </span>
@@ -31,7 +33,6 @@ const MovieFooter = () => {
 </Col>
 
 
-          {/* Company Section with Privacy */}
           <Col lg={3} md={6} className="footer-links">
           
             <ul className="list-unstyled small">

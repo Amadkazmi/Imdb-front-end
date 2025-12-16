@@ -1,14 +1,15 @@
-// fetchTMDBPersonImages.js
+
+
 export const getTMDBPersonImages = async (nconst) => {
   try {
-    const TMDB_API_KEY = "53fca71116f59200c250ddf587ccea1b";
-
+    const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+    console.log("TMDB API Key:", import.meta.env.VITE_TMDB_API_KEY);
     if (!TMDB_API_KEY) {
-      console.error("TMDB API Key is missing. Add REACT_APP_TMDB_API_KEY in your .env");
-      return [];
+      console.error("TMDB API Key is missing in environment variables.");
+      return { tmdbId: null, profiles: [] };
     }
 
-    // Find the person in TMDB using IMDb nconst
+    // Find person by IMDb nconst
     const res = await fetch(
       `https://api.themoviedb.org/3/find/${nconst}?external_source=imdb_id&api_key=${TMDB_API_KEY}`
     );
@@ -17,19 +18,18 @@ export const getTMDBPersonImages = async (nconst) => {
     if (data.person_results && data.person_results.length > 0) {
       const tmdbId = data.person_results[0].id;
 
-      // Fetch profile images for that person
+      // Fetch profile images
       const imagesRes = await fetch(
         `https://api.themoviedb.org/3/person/${tmdbId}/images?api_key=${TMDB_API_KEY}`
       );
       const imagesData = await imagesRes.json();
 
-      // Return array of profile images
-      return imagesData.profiles || [];
+      return { tmdbId, profiles: imagesData.profiles || [] };
     }
 
-    return [];
+    return { tmdbId: null, profiles: [] };
   } catch (err) {
     console.error("Error fetching TMDB person images:", err);
-    return [];
+    return { tmdbId: null, profiles: [] };
   }
 };
