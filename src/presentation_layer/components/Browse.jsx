@@ -122,7 +122,7 @@ const Browse = () => {
       });
     } catch (err) {
       console.error(err);
-      setError("Failed to load movies.");
+      setError("");
     } finally {
       setLoading(false);
     }
