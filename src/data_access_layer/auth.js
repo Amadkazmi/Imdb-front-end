@@ -18,7 +18,9 @@ export const authUtils = {
 
         // Check if token is expired (basic check)
         try {
+            //decode payload
             const payload = JSON.parse(atob(token.split('.')[1]));
+            //second and millisecond conversion(00:00:00 UTC on January 1, 1970)
             return payload.exp * 1000 > Date.now();
         } catch {
             return false;
