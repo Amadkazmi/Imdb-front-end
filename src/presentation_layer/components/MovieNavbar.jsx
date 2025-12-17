@@ -4,6 +4,7 @@ import { Navbar, Container, Button, Offcanvas, Form, ListGroup, Dropdown } from 
 import { apiService } from '../../data_access_layer/auth';
 
 const MovieNavbar = () => {
+  const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchHistory, setSearchHistory] = useState([]);
